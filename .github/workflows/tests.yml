@@ -1,0 +1,38 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      # No torch. Every stage downstream of detection is verifiable without
+      # it, which is what keeps this job under a minute.
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy "opencv-python-headless>=4.9" pytest
+
+      - name: Unit tests
+        run: pytest tests/ -q
+
+      - name: End-to-end against synthetic ground truth
+        run: |
+          python scripts/make_sample_clip.py --out sample --no-video
+          python scripts/verify.py

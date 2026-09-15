@@ -1,0 +1,10 @@
+# core pipeline - this is all you need to run against the synthetic clip
+numpy>=1.26
+opencv-python>=4.9
+
+# detection + pose. Not needed for tests or the synthetic clip, which is the
+# point: everything downstream of detection is verifiable without torch.
+# ultralytics>=8.3
+
+# dev
+# pytest>=8.0
